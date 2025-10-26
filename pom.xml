@@ -4,13 +4,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.unju.curso.java</groupId>
-  <artifactId>Ejemplo_JPA_HIBERNATE</artifactId>
+  <groupId>com.quickfix</groupId>
+  <artifactId>quickfix</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
 
-  <name>Ejemplo JPA Hibernate Jakarta EE</name>
-  <url>http://www.example.com</url>
+  <name>quickfix</name>
+  <url>http://www.quickfix.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -40,10 +40,21 @@
     </dependency>
 
     <dependency>
-        <groupId>org.glassfish.web</groupId>
-        <artifactId>jakarta.servlet.jsp.jstl</artifactId>
-        <version>3.0.1</version>
-    </dependency>
+    <groupId>jakarta.servlet.jsp.jstl</groupId>
+    <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+    <version>3.0.0</version>
+</dependency>
+<dependency>
+    <groupId>org.glassfish.web</groupId>
+    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+    <version>3.0.1</version>
+    <exclusions>
+       <exclusion>
+          <groupId>jakarta.servlet.jsp.jstl</groupId>
+          <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+       </exclusion>
+    </exclusions>
+</dependency>
     <dependency>
         <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-core</artifactId>
@@ -76,7 +87,7 @@
   </dependencies>
 
   <build>
-    <finalName>Ejemplo_JPA_HIBERNATE</finalName>
+    <finalName>quickfix</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

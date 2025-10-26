@@ -3,6 +3,7 @@ package com.quickfix.entities;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "equipo_cliente")
 public class EquipoCliente {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)

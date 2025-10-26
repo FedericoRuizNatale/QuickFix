@@ -6,6 +6,7 @@ import com.quickfix.enums.*;
 
 import jakarta.persistence.*;
 @Entity
+@Table(name = "solicitud_servicio")
 public class SolicitudServicio {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)

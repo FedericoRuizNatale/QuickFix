@@ -129,6 +129,8 @@ public class ControladorLogica {
 		return controlPersis.solicitudServicioDao.findByCliente(cliente);
 	}
 	
+	
+	
 	public void procesarNuevaSolicitud(SolicitudServicio solicitud, Turno turno) {
 	    
 	    // Aquí iría cualquier lógica de negocio final (ej: calcular puntos de lealtad)
@@ -176,6 +178,16 @@ public void responderConsulta(Integer idConsulta, Tecnico tecnicoLogueado, Strin
         
         // (Opcional) Aquí podrías añadir lógica para notificar al cliente por email.
     }
+
+public Tecnico traerTecnicoCompleto(Integer idUsuario) {
+	
+	return controlPersis.tecnicoDao.find(idUsuario);
+}
+
+public List<SolicitudServicio> traerSolicitudesActivasPorTecnico(Tecnico tecnicoLogueado) {
+	
+	return controlPersis.solicitudServicioDao.findSolicitudesActivasByTecnico(tecnicoLogueado);
+}
 	
 }
 

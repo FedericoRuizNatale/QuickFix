@@ -21,17 +21,18 @@
                 <li class="nav-item">
                     <a class="nav-link" href="miEquipo.jsp">Mis Equipos</a> 
                 </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="solicitar_servicio.jsp">Solicitar Servicio</a> 
+
+				<li class="nav-item">
+					<%-- ✅ CORRECCIÓN: El enlace DEBE apuntar al Servlet --%> <a
+					class="nav-link" href="PreSolicitudServlet">Solicitar Servicio</a>
+				</li>
+
+				<li class="nav-item">
+                    <a class="nav-link" href="PreConsultaServlet">Consulta Técnica</a> 
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link" href="consultaTecnica.jsp">Consulta Técnica</a> 
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Historial</a>
+                    <a class="nav-link" href="HistorialServlet">Historial</a>
                 </li>
             </ul>
         </div>

@@ -1,5 +1,8 @@
 package com.quickfix.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -16,6 +19,8 @@ public class EquipoCliente {
 	@ManyToOne
 	private Cliente cliente;
 	
+	@OneToMany(mappedBy = "equipoCliente")
+	private List<SolicitudServicio> solicitudes;
 	
 	
 	
@@ -62,10 +67,19 @@ public class EquipoCliente {
 		this.modelo = modelo;
 		this.problemasFrecuentes = problemasFrecuentes;
 		this.cliente = cliente;
+		
+		this.solicitudes = new ArrayList<>();
 	}
 	
 	public EquipoCliente() {
 		
+		this.solicitudes = new ArrayList<>();
+	}
+	public List<SolicitudServicio> getSolicitudes() {
+		return solicitudes;
+	}
+	public void setSolicitudes(List<SolicitudServicio> solicitudes) {
+		this.solicitudes = solicitudes;
 	}
 	
 	

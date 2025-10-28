@@ -13,8 +13,9 @@ public class Servicio {
 	private String descripcion;
 	private Double costoBase;
 	
-	@OneToOne (mappedBy = "servicio")
-	private SolicitudServicio solicitudServicio;
+	@OneToOne
+    @JoinColumn(name = "idSolicitud", unique = true) 
+    private SolicitudServicio solicitudServicio;
 
 	
 	

@@ -20,6 +20,8 @@ public class Cliente extends Usuario{
 	
 	@OneToMany(mappedBy = "cliente")
 	private List<ConsultaTecnica> consultasTecnicas;
+	@OneToMany(mappedBy = "cliente")
+	private List<SolicitudServicio> solicitudesServicios;
 	
 	/**
 	 * Constructor completo (Recomendado).
@@ -39,6 +41,7 @@ public class Cliente extends Usuario{
 		// ✅ INICIALIZA LA LISTA
 		this.equipos = new ArrayList<>(); 
 		this.consultasTecnicas = new ArrayList<>(); 
+		this.solicitudesServicios = new ArrayList<>(); 
 	}
 	
 	/**
@@ -49,6 +52,7 @@ public class Cliente extends Usuario{
 		// ✅ INICIALIZA LA LISTA
 		this.equipos = new ArrayList<>(); 
 		this.consultasTecnicas = new ArrayList<>(); 
+		this.solicitudesServicios = new ArrayList<>(); 
 	}
 	
 	

@@ -18,8 +18,9 @@ public class Turno {
 	@Enumerated(EnumType.STRING)
 	private EstadoTurno estado;
 	
-	@OneToOne(mappedBy = "turno")
-	private SolicitudServicio solicitudServicio;
+	@OneToOne
+    @JoinColumn(name = "idSolicitud", unique = true) 
+    private SolicitudServicio solicitudServicio;
 
 	
 	

@@ -26,17 +26,18 @@ public class SolicitudServicio {
 	@ManyToOne
 	private Tecnico tecnico;
 	
-	@OneToOne
-	@JoinColumn(name = "servicio_id")
-	private Servicio servicio;
+	@OneToOne(mappedBy = "solicitudServicio") 
+    private Servicio servicio;
 	
-	@OneToOne
-	@JoinColumn(name = "turno_id")
+	@OneToOne(mappedBy = "solicitudServicio") 
 	private Turno turno;
 	
 	@OneToOne
     @JoinColumn(name = "consulta_origen_id")
     private ConsultaTecnica consultaDeOrigen;
+	
+	@ManyToOne
+	private EquipoCliente equipoCliente;
 
 	
 	
@@ -56,6 +57,14 @@ public class SolicitudServicio {
 	
 	
 	
+	public EquipoCliente getEquipoCliente() {
+		return equipoCliente;
+	}
+
+	public void setEquipoCliente(EquipoCliente equipoCliente) {
+		this.equipoCliente = equipoCliente;
+	}
+
 	public SolicitudServicio() {
 		
 	}

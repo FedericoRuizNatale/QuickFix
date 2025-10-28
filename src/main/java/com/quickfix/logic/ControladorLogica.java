@@ -3,6 +3,7 @@ package com.quickfix.logic;
 import java.util.List;
 
 import com.quickfix.entities.*;
+import com.quickfix.enums.EstadoTurno;
 import com.quickfix.persistencia.ControladorPersistencia;
 
 public class ControladorLogica {
@@ -35,8 +36,26 @@ public class ControladorLogica {
 		controlPersis.clienteDao.create(cli);
 	}
 	
+	public Cliente traerClienteCompleto(Integer idUsuario) {
+		return controlPersis.clienteDao.find(idUsuario);
+	}
+	
 	public Usuario obtenerUsuarioConEmail(String email) {
 		 return controlPersis.usuarioDao.findByEmail(email);
+	}
+	
+	
+	
+	//--------------------------------EquipoCliente-------------------------------------------------
+	
+	public void eliminarEquipo(Integer idEquipo) throws Exception { // Mantenemos el throws por si el DAO falla
+	    // Simplemente llama al método delete del DAO, que ahora hace la validación.
+	    controlPersis.equipoClienteDao.delete(idEquipo); 
+	    // Si el DAO lanza la RuntimeException, esta se propagará al Servlet.
+	}
+	
+	public void editarEquipo(EquipoCliente equipoCliente) {
+		controlPersis.equipoClienteDao.update(equipoCliente);
 	}
 	
 	public boolean clienteTieneEquipos(Cliente cliente) {
@@ -45,6 +64,9 @@ public class ControladorLogica {
 		return (equipos != null && !equipos.isEmpty());
 	}
 	
+	public EquipoCliente traerEquipo(Integer idEquipo) {
+		return controlPersis.equipoClienteDao.find(idEquipo);
+	}
 	public List<EquipoCliente>traerEquiposPorCliente(Cliente cliente) {
 	    // La lógica de negocio está aquí: solo llama al DAO
 	    return controlPersis.equipoClienteDao.findByCliente(cliente);
@@ -52,6 +74,71 @@ public class ControladorLogica {
 	public void crearEquipo(EquipoCliente equipo) {
 		controlPersis.equipoClienteDao.create(equipo);
 	}
-	// ...
+	
+	public Turno traerTurno(Integer idTurno) {
+		return controlPersis.turnoDao.find(idTurno);
+	}
+	public List<Turno> traerTodosLosTurnos() {
+		return controlPersis.turnoDao.findAll();
+	}
+	
+	public void crearTurno(Turno turno) {
+		controlPersis.turnoDao.create(turno);
+	}
+	public void setEstadoTurno(Integer idTurno, EstadoTurno nuevoEstado) {
+        // En una aplicación real, pondrías validación de roles aquí (ej: solo el Admin puede hacerlo).
+        controlPersis.turnoDao.setEstadoTurno(idTurno, nuevoEstado);
+    }
+	
+	public List<Turno> traerTurnosDisponibles(){
+		return controlPersis.turnoDao.findTurnosDispobibles();
+	}
+	
+	
+	public Servicio traerServicio(Integer idServicio) {
+		return controlPersis.servicioDao.find(idServicio);
+	}
+	
+	
+	
+	public List<Servicio> traerTodosLosServicios(){
+		return controlPersis.servicioDao.findAll();
+	}
+	public void crearServicio(Servicio servicio) {
+		controlPersis.servicioDao.create(servicio);
+	}
+	
+	//---------------------------------ConsultaTecnica--------------------------------------------------------------
+	
+	public void crearConsultaTecnica(ConsultaTecnica consultaTecnica) {
+		controlPersis.consultaTecnicaDao.create(consultaTecnica);
+	}
+	
+	
+	// --- En ControladorLogica.java ---
+
+	/**
+	 * Procesa la creación de una nueva solicitud y la actualización del turno
+	 * en una única llamada a la persistencia.
+	 */
+	
+	
+	//--------------------------SolicitudServicio-------------------------------------------
+	public List<SolicitudServicio> traerSolicitudesPorCliente(Cliente cliente){
+		return controlPersis.solicitudServicioDao.findByCliente(cliente);
+	}
+	
+	public void procesarNuevaSolicitud(SolicitudServicio solicitud, Turno turno) {
+	    
+	    // Aquí iría cualquier lógica de negocio final (ej: calcular puntos de lealtad)
+	    
+	    // Delega la responsabilidad transaccional a la Controladora de Persistencia.
+	    controlPersis.procesarNuevaSolicitud(solicitud, turno);
+	}
+	
+	
+	
 
 }
+
+

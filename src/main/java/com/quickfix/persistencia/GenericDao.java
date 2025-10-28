@@ -18,7 +18,7 @@ public class GenericDao<T, K > {
     protected EntityManagerFactory emf;
     
     // Almacena la clase (ej. Cliente.class) para usarla en las consultas
-    private Class<T> entityClass; 
+    protected Class<T> entityClass; 
 
     /**
      * Constructor que recibe el EntityManagerFactory desde la 

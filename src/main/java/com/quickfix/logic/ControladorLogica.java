@@ -3,6 +3,7 @@ package com.quickfix.logic;
 import java.util.List;
 
 import com.quickfix.entities.*;
+import com.quickfix.enums.EstadoConsulta;
 import com.quickfix.enums.EstadoTurno;
 import com.quickfix.persistencia.ControladorPersistencia;
 
@@ -137,8 +138,45 @@ public class ControladorLogica {
 	}
 	
 	
-	
+	//-------------------------Tecnico----------------------------
+	public void crearTecnico (Tecnico tecnico) {
+		controlPersis.tecnicoDao.create(tecnico);
+	}
 
+	public List<ConsultaTecnica> traerConsultasPendientes() {
+		
+		return controlPersis.consultaTecnicaDao.findConsultasPendientes();
+	}
+
+public void responderConsulta(Integer idConsulta, Tecnico tecnicoLogueado, String solucion) throws Exception {
+        
+        // 1. Buscar la consulta técnica en la BD
+        ConsultaTecnica consulta = controlPersis.consultaTecnicaDao.find(idConsulta);
+
+        // 2. Validaciones de negocio
+        if (consulta == null) {
+            throw new Exception("La consulta con ID " + idConsulta + " no fue encontrada.");
+        }
+        // Verifica si ya fue tomada por otro técnico o si no está pendiente
+        if (consulta.getTecnico() != null || consulta.getEstado() != EstadoConsulta.PENDIENTE) {
+             throw new Exception("Esta consulta ya no está pendiente o fue tomada por otro técnico.");
+        }
+        if (solucion == null || solucion.trim().isEmpty()) {
+            throw new Exception("La solución no puede estar vacía.");
+        }
+
+        // 3. Actualizar los datos de la consulta
+        consulta.setTecnico(tecnicoLogueado); // Asigna el técnico que respondió
+        consulta.setSolucion(solucion);       // Guarda la respuesta
+        consulta.setEstado(EstadoConsulta.RESUELTA); // Cambia el estado
+
+        // 4. Llamar al DAO para guardar los cambios (actualizar)
+        // El método update es heredado de GenericDao
+        controlPersis.consultaTecnicaDao.update(consulta); 
+        
+        // (Opcional) Aquí podrías añadir lógica para notificar al cliente por email.
+    }
+	
 }
 
 

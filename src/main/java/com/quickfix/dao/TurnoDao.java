@@ -88,4 +88,6 @@ public class TurnoDao extends GenericDao<Turno, Integer> {
     }
     
     
+    
+    
 }

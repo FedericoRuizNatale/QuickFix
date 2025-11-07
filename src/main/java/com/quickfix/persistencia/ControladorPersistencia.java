@@ -75,50 +75,51 @@ public class ControladorPersistencia {
 
 
 
-    public void procesarNuevaSolicitud(SolicitudServicio solicitud, Turno turno) {
-        
-        EntityManager em = null; 
+ // --- En ControladorPersistencia.java ---
 
-        try {
-            em = emf.createEntityManager(); 
-            em.getTransaction().begin();
-            
-            // Obtenemos el servicio ANTES de hacer nada
-            Servicio servicio = solicitud.getServicio();
+ // (Asegúrate de tener "import jakarta.persistence.EntityManager;" al principio)
 
-            // VALIDACIÓN: Si no hay servicio, no podemos continuar.
-            if (servicio == null) {
-                throw new PersistenceException("Intento de procesar una solicitud sin servicio asociado.");
-            }
-            
-            // --- ORDEN CORREGIDO ---
-            
-            // 1. (ANTES 4) Guardar la Solicitud (INVERSO) PRIMERO.
-            //    Esto genera el ID de la solicitud.
-            em.persist(solicitud);
-                
-            // 2. (ANTES 3) Ahora que 'solicitud' tiene un ID, 
-            //    establecemos la relación en el "dueño" y lo guardamos.
-            servicio.setSolicitudServicio(solicitud);
-            em.merge(servicio); // Ahora JPA puede tomar el ID de 'solicitud' y guardarlo en el 'servicio'
-            
-            // 3. (ANTES 5) Guardar los cambios del Turno.
-            em.merge(turno); 
-                
-            // 4. Confirmar todo
-            em.getTransaction().commit();
+ public void procesarNuevaSolicitud(SolicitudServicio solicitud, Turno turno) {
 
-        } catch (PersistenceException e) {
-            if (em != null && em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            // Lanzar la excepción para que la capa superior la maneje
-            throw new RuntimeException("Error al procesar la Solicitud y Turno.", e);
-            
-        } finally {
-            if (em != null) {
-                em.close();
-            }
-        }
-    }
+     EntityManager em = null; 
+     try {
+         em = emf.createEntityManager(); 
+         em.getTransaction().begin();
+
+         // --- ¡ORDEN CORREGIDO! ---
+
+         // 1. GUARDAR EL TURNO PRIMERO
+         //    Como SolicitudServicio "depende" de Turno,
+         //    el Turno debe existir primero en la base de datos.
+         //    Usamos 'persist' porque es un objeto NUEVO.
+         em.persist(turno);
+
+         // 2. GUARDAR LA SOLICITUD (que ahora apunta a un Turno que SÍ existe)
+         //    Usamos 'persist' porque también es nueva.
+         em.persist(solicitud);
+
+         // 3. (Opcional, si Servicio también dependía de Solicitud)
+         //    Asegurar la relación con Servicio (si aplica)
+         Servicio servicio = solicitud.getServicio();
+         if (servicio != null && servicio.getSolicitudServicio() == null) { // Evitar sobrescribir si es M-1
+             servicio.setSolicitudServicio(solicitud); // Asumiendo One-to-One
+             em.merge(servicio); 
+         }
+
+         // 4. Si todo fue bien, confirmar los cambios
+         em.getTransaction().commit();
+
+     } catch (PersistenceException e) {
+         if (em != null && em.getTransaction().isActive()) {
+             em.getTransaction().rollback();
+         }
+         // Lanzar la excepción para que el Servlet la atrape
+         throw new RuntimeException("Error al procesar la Solicitud y Turno.", e);
+
+     } finally {
+         if (em != null) {
+             em.close();
+         }
+     }
+ }
 }

@@ -6,6 +6,8 @@ import com.quickfix.persistencia.GenericDao;
 import jakarta.persistence.EntityManager; // ⬅️ IMPORTANTE
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery; // ⬅️ IMPORTANTE
+
+import java.time.LocalDateTime;
 import java.util.List; // ⬅️ IMPORTANTE
 
 public class BloqueoTecnicoDao extends GenericDao<BloqueoTecnico, Integer> {
@@ -31,6 +33,20 @@ public class BloqueoTecnicoDao extends GenericDao<BloqueoTecnico, Integer> {
             if (em != null) {
                 em.close();
             }
+        }
+    }
+    
+    public List<BloqueoTecnico> findAllBloqueosFuturos() {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<BloqueoTecnico> query = em.createQuery(
+                "SELECT b FROM BloqueoTecnico b WHERE b.fechaHoraInicio >= :ahora", 
+                BloqueoTecnico.class
+            );
+            query.setParameter("ahora", LocalDateTime.now().minusHours(1)); // Damos 1h de margen
+            return query.getResultList();
+        } finally {
+            if (em != null) em.close();
         }
     }
 }

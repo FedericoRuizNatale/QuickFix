@@ -1,10 +1,17 @@
 package com.quickfix.logic;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.quickfix.dto.SlotDTO;
 import com.quickfix.dto.TurnoDTO;
 import com.quickfix.entities.*;
 import com.quickfix.enums.EstadoConsulta;
@@ -463,6 +470,120 @@ public List<TurnoDTO> traerTurnosReservadosDTOs() {
     }
     
     return turnosDTO;
+}
+
+//CEREBRO DE LA LOGICA DE TURNOS DISPONIBLES PARA EL CLIENTE
+/**
+ * Genera la lista de slots de turnos disponibles para el cliente.
+ * Este es el "cerebro" que combina las 4 capas de disponibilidad.
+ */
+public List<SlotDTO> traerSlotsDisponibles() {
+    
+    // --- 1. Obtener todas las Reglas y Datos ---
+    
+    // Capa 1 (Reglas del Admin)
+    AgendaConfiguracion config = controlPersis.agendaConfigDao.find(1);
+    List<HorarioLaboral> horarios = controlPersis.horarioLaboralDao.findAll();
+    int intervalo = config.getIntervaloMinutos();
+
+    // Capa 2 (Feriados) - Los ponemos en un "Set" para búsquedas rápidas
+    Set<LocalDate> diasFeriados = new HashSet<>();
+    for (DiaNoLaboral dia : controlPersis.diaNoLaboralDao.findAll()) {
+        diasFeriados.add(dia.getFecha());
+    }
+
+    // Capa 3 (Bloqueos) y Capa 4 (Reservas)
+    List<BloqueoTecnico> bloqueos = controlPersis.bloqueoTecnicoDao.findAllBloqueosFuturos();
+    List<Turno> turnosReservados = controlPersis.turnoDao.findTurnosReservadosFuturos();
+
+    
+    // --- 2. Generar y Filtrar Slots ---
+    
+    List<SlotDTO> slotsDisponibles = new ArrayList<>();
+    LocalDate hoy = LocalDate.now();
+    DateTimeFormatter formatoTitulo = DateTimeFormatter.ofPattern("HH:mm");
+
+    // Generamos slots para los próximos 30 días
+    for (int i = 0; i < 30; i++) {
+        LocalDate diaActual = hoy.plusDays(i);
+        DayOfWeek diaSemanaJava = diaActual.getDayOfWeek(); // Ej: MONDAY
+
+        // --- Filtro Capa 2 (Feriados) ---
+        if (diasFeriados.contains(diaActual)) {
+            continue; // Es feriado, saltar este día
+        }
+
+        // --- Filtro Capa 1 (Horario Laboral) ---
+        // Buscamos la regla del admin para este día de la semana
+        HorarioLaboral reglaDia = null;
+        for (HorarioLaboral h : horarios) {
+            // (Java: 1=Lunes, 7=Domingo) (BD: 1=Lunes, 7=Domingo)
+            if (h.getDiaSemana() == diaSemanaJava.getValue()) {
+                reglaDia = h;
+                break;
+            }
+        }
+
+        // Si no hay regla o está cerrado (NULL), saltar este día
+        if (reglaDia == null || reglaDia.getHoraInicio() == null || reglaDia.getHoraFin() == null) {
+            continue;
+        }
+
+        // --- 3. Generar Slots para este día ---
+        LocalTime slotInicio = reglaDia.getHoraInicio();
+        
+        while (slotInicio.isBefore(reglaDia.getHoraFin())) {
+            LocalDateTime slotInicioFull = LocalDateTime.of(diaActual, slotInicio);
+            LocalDateTime slotFinFull = slotInicioFull.plusMinutes(intervalo);
+            
+            // (No generar slots en el pasado)
+            if (slotInicioFull.isBefore(LocalDateTime.now())) {
+                slotInicio = slotInicio.plusMinutes(intervalo);
+                continue;
+            }
+
+            // --- Filtro Capa 3 (Bloqueos Técnicos) ---
+            boolean estaBloqueado = false;
+            for (BloqueoTecnico b : bloqueos) {
+                // Verificamos si nuestro slot [Inicio-Fin] se superpone con un bloqueo [b.Inicio-b.Fin]
+                if (slotInicioFull.isBefore(b.getFechaHoraFin()) && slotFinFull.isAfter(b.getFechaHoraInicio())) {
+                    estaBloqueado = true;
+                    break;
+                }
+            }
+            if (estaBloqueado) {
+                slotInicio = slotInicio.plusMinutes(intervalo);
+                continue; // El slot está bloqueado, saltar
+            }
+
+            // --- Filtro Capa 4 (Turnos Reservados) ---
+            boolean estaReservado = false;
+            for (Turno t : turnosReservados) {
+                // Verificamos si nuestro slot se superpone con un turno ya reservado
+                if (slotInicioFull.isBefore(t.getFechaHoraFin()) && slotFinFull.isAfter(t.getFechaHoraInicio())) {
+                    estaReservado = true;
+                    break;
+                }
+            }
+            if (estaReservado) {
+                slotInicio = slotInicio.plusMinutes(intervalo);
+                continue; // El slot está reservado, saltar
+            }
+
+            // --- ¡SLOT DISPONIBLE! ---
+            // Si pasó todos los filtros, lo añadimos a la lista
+            slotsDisponibles.add(new SlotDTO(
+                slotInicio.format(formatoTitulo), // Título: "09:00"
+                slotInicioFull.toString(),       // Start: "2025-11-10T09:00:00"
+                slotFinFull.toString()         // End: "2025-11-10T09:30:00"
+            ));
+
+            // Avanzamos al siguiente slot
+            slotInicio = slotInicio.plusMinutes(intervalo);
+        }
+    }
+
+    return slotsDisponibles;
 }
 
 

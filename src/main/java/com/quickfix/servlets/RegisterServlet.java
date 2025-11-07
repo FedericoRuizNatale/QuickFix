@@ -15,7 +15,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/RegisterServlet"})
 public class RegisterServlet extends HttpServlet {
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

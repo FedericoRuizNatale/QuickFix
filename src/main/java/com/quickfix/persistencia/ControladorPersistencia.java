@@ -3,6 +3,7 @@ package com.quickfix.persistencia;
 import com.quickfix.dao.*; // Importa todos tus DAOs
 import com.quickfix.entities.ConsultaTecnica;
 import com.quickfix.entities.EquipoCliente;
+import com.quickfix.entities.Servicio;
 import com.quickfix.entities.SolicitudServicio;
 import com.quickfix.entities.Turno;
 
@@ -13,6 +14,9 @@ import jakarta.persistence.PersistenceException;
 
 public class ControladorPersistencia {
 
+	
+	private static ControladorPersistencia instance = null;
+	
     // 1. La ÚNICA instancia del EntityManagerFactory
     private final EntityManagerFactory emf;
     
@@ -26,6 +30,10 @@ public class ControladorPersistencia {
     public final TurnoDao turnoDao;
     public final ConsultaTecnicaDao consultaTecnicaDao;
     public final SolicitudServicioDao solicitudServicioDao;
+    public final AgendaConfiguracionDao agendaConfigDao;
+    public final HorarioLaboralDao horarioLaboralDao;
+    public final DiaNoLaboralDao diaNoLaboralDao;
+    public final BloqueoTecnicoDao bloqueoTecnicoDao;
     // ... etc.
     public ControladorPersistencia() {
         // 3. Se crea el EMF una sola vez
@@ -41,8 +49,21 @@ public class ControladorPersistencia {
         this.turnoDao = new TurnoDao(emf);
         this.consultaTecnicaDao = new ConsultaTecnicaDao(emf);
         this.solicitudServicioDao = new SolicitudServicioDao(emf);
+        this.agendaConfigDao = new AgendaConfiguracionDao(emf);
+        this.horarioLaboralDao = new HorarioLaboralDao(emf);
+        this.diaNoLaboralDao = new DiaNoLaboralDao(emf);
+        this.bloqueoTecnicoDao = new BloqueoTecnicoDao(emf);
     }
     
+    
+    
+ // 5. El "getter" PÚBLICO para la instancia
+    public static ControladorPersistencia getInstance() {
+        if (instance == null) {
+            instance = new ControladorPersistencia();
+        }
+        return instance;
+    }
     
     
     // Método para cerrar la conexión principal al final de la aplicación
@@ -56,30 +77,38 @@ public class ControladorPersistencia {
 
     public void procesarNuevaSolicitud(SolicitudServicio solicitud, Turno turno) {
         
-        // El EntityManager lo crea el GenericDao, pero lo necesitamos aquí.
         EntityManager em = null; 
 
         try {
-            // 1. Obtener un EntityManager de la EMF única.
-            //    (Lo obtienes directamente de la EMF que tienes guardada)
             em = emf.createEntityManager(); 
-            
-            // 2. Iniciar la transacción
             em.getTransaction().begin();
             
-            // 3. OPERACIÓN 1: Guardar la nueva Solicitud (CREATE)
+            // Obtenemos el servicio ANTES de hacer nada
+            Servicio servicio = solicitud.getServicio();
+
+            // VALIDACIÓN: Si no hay servicio, no podemos continuar.
+            if (servicio == null) {
+                throw new PersistenceException("Intento de procesar una solicitud sin servicio asociado.");
+            }
+            
+            // --- ORDEN CORREGIDO ---
+            
+            // 1. (ANTES 4) Guardar la Solicitud (INVERSO) PRIMERO.
+            //    Esto genera el ID de la solicitud.
             em.persist(solicitud);
+                
+            // 2. (ANTES 3) Ahora que 'solicitud' tiene un ID, 
+            //    establecemos la relación en el "dueño" y lo guardamos.
+            servicio.setSolicitudServicio(solicitud);
+            em.merge(servicio); // Ahora JPA puede tomar el ID de 'solicitud' y guardarlo en el 'servicio'
             
-            // 4. OPERACIÓN 2: Actualizar el Turno a Reservado (UPDATE)
-            //    Usamos merge porque el objeto 'turno' viene de la lógica y necesita
-            //    ser re-adjuntado al contexto de JPA.
+            // 3. (ANTES 5) Guardar los cambios del Turno.
             em.merge(turno); 
-            
-            // 5. Si todo fue bien, confirmar los cambios
+                
+            // 4. Confirmar todo
             em.getTransaction().commit();
 
         } catch (PersistenceException e) {
-            // 6. Si algo falla (ej: error de BD), revertir la transacción
             if (em != null && em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
@@ -87,7 +116,6 @@ public class ControladorPersistencia {
             throw new RuntimeException("Error al procesar la Solicitud y Turno.", e);
             
         } finally {
-            // 7. Cerrar el EntityManager
             if (em != null) {
                 em.close();
             }

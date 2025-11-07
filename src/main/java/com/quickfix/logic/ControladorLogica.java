@@ -1,18 +1,37 @@
 package com.quickfix.logic;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.quickfix.dto.TurnoDTO;
 import com.quickfix.entities.*;
 import com.quickfix.enums.EstadoConsulta;
+import com.quickfix.enums.EstadoSolicitud;
 import com.quickfix.enums.EstadoTurno;
 import com.quickfix.persistencia.ControladorPersistencia;
 
 public class ControladorLogica {
-	ControladorPersistencia controlPersis = new ControladorPersistencia();
+	// 1. Instancia única (Singleton)
+    private static ControladorLogica instance = null;
 
-	public void crearAdministrador(Administrador admin) {
-		controlPersis.adminDao.create(admin);
-	}
+    // 2. Referencia a la (única) instancia de Persistencia
+    ControladorPersistencia controlPersis;
+
+    // 3. Constructor PRIVADO:
+    // Se llama una sola vez y obtiene la instancia única de Persistencia.
+    private ControladorLogica() {
+        this.controlPersis = ControladorPersistencia.getInstance();
+    }
+
+    // 4. Método PÚBLICO ESTÁTICO para obtener la instancia
+    public static ControladorLogica getInstance() {
+        if (instance == null) {
+            instance = new ControladorLogica();
+        }
+        return instance;
+    }
 
 	public Usuario validarLogin(String email, String password) {
 
@@ -188,7 +207,267 @@ public List<SolicitudServicio> traerSolicitudesActivasPorTecnico(Tecnico tecnico
 	
 	return controlPersis.solicitudServicioDao.findSolicitudesActivasByTecnico(tecnicoLogueado);
 }
+
+public List<Cliente> traerTodosLosClientes() {
+	
+	return controlPersis.clienteDao.findAll();
+}
+
+public List<Tecnico> traerTodosLosTecnicos() {
+	
+	return controlPersis.tecnicoDao.findAll();
+}
+
+public List<Administrador> traerTodosLosAdmins() {
+	
+	return controlPersis.adminDao.findAll();
+}
+
+public void editarCliente(Cliente cli) {
+	controlPersis.clienteDao.update(cli);
 	
 }
+
+public void editarTecnico(Tecnico tec) {
+	controlPersis.tecnicoDao.update(tec);
+	
+}
+
+public Administrador traerAdminCompleto(Integer idUsuario) {
+	
+	return controlPersis.adminDao.find(idUsuario);
+}
+
+public void editarAdmin(Administrador adm) {
+	controlPersis.adminDao.update(adm);
+	
+}
+
+public void crearAdmin(Administrador adm) {
+	controlPersis.adminDao.create(adm);
+	
+}
+
+public void eliminarCliente(Integer idUsuarioDel) {
+	controlPersis.clienteDao.delete(idUsuarioDel);
+	
+}
+
+public void eliminarTecnico(Integer idUsuarioDel) {
+	controlPersis.tecnicoDao.delete(idUsuarioDel);
+	
+}
+
+public void eliminarAdmin(Integer idUsuarioDel) {
+	controlPersis.adminDao.delete(idUsuarioDel);
+	
+}
+
+public long contarAdmins() {
+	return controlPersis.adminDao.countAll();
+}
+
+public void editarServicio(Servicio servicioEditado) {
+	controlPersis.servicioDao.update(servicioEditado);
+	
+}
+
+public void eliminarServicio(Integer idServicioDel) {
+	controlPersis.servicioDao.delete(idServicioDel);
+	
+}
+
+public List<SolicitudServicio> traerSolicitudesSinAsignar() {
+	
+	return controlPersis.solicitudServicioDao.findSolicitudesSinAsignar();
+}
+
+public List<Tecnico> traerTecnicosActivos() {
+	
+	return controlPersis.tecnicoDao.findTecnicosActivos();
+}
+
+public Long obtenerCargaTecnico(Tecnico tec) {
+	
+	return controlPersis.solicitudServicioDao.countActiveSolicitudesByTecnico(tec);
+}
+
+public void asignarTecnicoASolicitud(Integer idSolicitud, Integer idTecnico) throws Exception {
+    SolicitudServicio solicitud = controlPersis.solicitudServicioDao.find(idSolicitud);
+    Tecnico tecnico = controlPersis.tecnicoDao.find(idTecnico);
+
+    if (solicitud == null || tecnico == null) {
+        throw new Exception("Solicitud o Técnico no encontrado.");
+    }
+    
+    // Asigna el técnico
+    solicitud.setTecnico(tecnico);
+    // Actualiza el estado (ej: a 'En Diagnóstico' o 'Asignada')
+    solicitud.setEstado(EstadoSolicitud.EN_DIAGNOSTICO); 
+
+    // Guarda los cambios
+    controlPersis.solicitudServicioDao.update(solicitud);
+}
+
+public void actualizarEstadoSolicitud(Integer idSolicitud, EstadoSolicitud nuevoEstado, String diagnosticoTecnico) throws Exception {
+    
+    // 1. Buscar la solicitud existente en la base de datos
+    SolicitudServicio solicitud = controlPersis.solicitudServicioDao.find(idSolicitud);
+
+    if (solicitud == null) {
+        throw new Exception("La solicitud con ID " + idSolicitud + " no fue encontrada.");
+    }
+
+    // 2. Actualizar los campos
+    solicitud.setEstado(nuevoEstado);
+    
+    // 3. Añadir o actualizar el diagnóstico técnico (si se proporcionó)
+    // El 'trim()' asegura que no guardemos solo espacios en blanco
+    if (diagnosticoTecnico != null && !diagnosticoTecnico.trim().isEmpty()) {
+        
+        // Si ya existía un diagnóstico, podrías concatenarlo o simplemente reemplazarlo.
+        // Aquí lo reemplazamos:
+        solicitud.setDiagnosticoTecnico(diagnosticoTecnico); 
+        
+        // NOTA: Tu entidad SolicitudServicio tiene un solo campo 'diagnostico'. 
+        // Si querías guardar el diagnóstico del cliente Y el del técnico por separado,
+        // necesitarías añadir un nuevo campo (ej: @Column(columnDefinition="TEXT") private String diagnosticoTecnico;)
+        // a tu entidad SolicitudServicio.java.
+    }
+    
+    // (Opcional) Si el estado es FINALIZADA, podrías actualizar la fecha de finalización
+    // if (nuevoEstado == EstadoSolicitud.FINALIZADA) {
+    //     solicitud.setFechaHoraFinalizacion(LocalDateTime.now()); // (Necesitarías añadir este campo a la entidad)
+    // }
+
+    // 4. Guardar los cambios en la base de datos
+    // Llama al método 'update' heredado de GenericDao
+    controlPersis.solicitudServicioDao.update(solicitud);
+}
+//--------------------GESTION TURNOS---------------------------------
+//... dentro de tu clase ControladorLogica
+
+//--- MÉTODOS PARA GESTIÓN DE AGENDA (ADMIN) ---
+
+//--- Capa 1: Horario Laboral ---
+public List<HorarioLaboral> traerHorariosLaborales() {
+	// El findAll() de GenericDao nos trae los 7 días
+	return controlPersis.horarioLaboralDao.findAll();
+}
+
+public AgendaConfiguracion traerConfiguracionAgenda() {
+	// Buscamos la configuración única (la fila con ID=1)
+	return controlPersis.agendaConfigDao.find(1);
+}
+
+//--- Capa 2: Feriados ---
+public List<DiaNoLaboral> traerDiasNoLaborales() {
+	// Trae la lista de feriados cargados
+	return controlPersis.diaNoLaboralDao.findAll();
+}
+
+//... (dentro de la clase ControladorLogica,
+//junto a los métodos 'traer...' que ya tenías)
+
+//--- MÉTODOS DE ESCRITURA PARA AGENDA ---
+
+public void actualizarConfiguracionAgenda(int intervaloMinutos) {
+// 1. Trae la configuración existente (ID=1)
+	AgendaConfiguracion config = controlPersis.agendaConfigDao.find(1);
+
+// 2. Modifica el valor
+	config.setIntervaloMinutos(intervaloMinutos);
+
+// 3. Guarda los cambios en la BD
+	controlPersis.agendaConfigDao.update(config);
+}
+
+public void actualizarHorario(int diaSemana, String horaInicio, String horaFin) {
+// 1. Busca el horario para ese día
+// (Asumimos que los 7 días ya existen en la BD)
+	HorarioLaboral horario = controlPersis.horarioLaboralDao.find(diaSemana);
+
+// 2. Convierte los String a LocalTime.
+//    Si el string está vacío (""), lo guarda como NULL (cerrado).
+	horario.setHoraInicio(horaInicio.isEmpty() ? null : java.time.LocalTime.parse(horaInicio));
+	horario.setHoraFin(horaFin.isEmpty() ? null : java.time.LocalTime.parse(horaFin));
+
+// 3. Guarda los cambios en la BD
+	controlPersis.horarioLaboralDao.update(horario);
+}
+
+public void agregarDiaNoLaboral(String fecha, String descripcion) {
+// 1. Crea una nueva entidad
+	DiaNoLaboral nuevoFeriado = new DiaNoLaboral();
+
+// 2. Setea los valores convirtiendo el String a LocalDate
+	nuevoFeriado.setFecha(java.time.LocalDate.parse(fecha));
+	nuevoFeriado.setDescripcion(descripcion);
+
+// 3. Lo crea en la BD
+	controlPersis.diaNoLaboralDao.create(nuevoFeriado);
+}
+
+public void borrarDiaNoLaboral(int idFeriado) {
+// El GenericDao ya nos da un método 'delete'
+	controlPersis.diaNoLaboralDao.delete(idFeriado);
+}
+	
+
+//------------------------------GESTION BLOQUEOS TECNICOS (HORARIOS)----------------------------------
+public List<BloqueoTecnico> traerBloqueosPorTecnico(Tecnico tecnico) {
+	return controlPersis.bloqueoTecnicoDao.findBloqueosByTecnico(tecnico);
+}
+
+public void crearBloqueoTecnico(Tecnico tecnico, String inicioISO, String finISO, String motivo) {
+    BloqueoTecnico nuevoBloqueo = new BloqueoTecnico();
+    nuevoBloqueo.setTecnico(tecnico);
+    
+    // ⬇️ --- LÍNEAS MODIFICADAS --- ⬇️
+    // Convertimos el String ISO (que SÍ tiene zona horaria)
+    // a un objeto LocalDateTime (que NO tiene zona horaria, es "local")
+    nuevoBloqueo.setFechaHoraInicio(OffsetDateTime.parse(inicioISO).toLocalDateTime());
+    nuevoBloqueo.setFechaHoraFin(OffsetDateTime.parse(finISO).toLocalDateTime());
+    // ⬆️ --- FIN DE LÍNEAS MODIFICADAS --- ⬆️
+    
+    nuevoBloqueo.setMotivo(motivo);
+    
+    controlPersis.bloqueoTecnicoDao.create(nuevoBloqueo);
+}
+
+public void borrarBloqueoTecnico(int idBloqueo) {
+	controlPersis.bloqueoTecnicoDao.delete(idBloqueo);
+}
+
+public List<TurnoDTO> traerTurnosReservadosDTOs() {
+    // 1. Llama al nuevo método del DAO
+    List<Turno> turnosJPA = controlPersis.turnoDao.findTurnosReservadosFuturos();
+    
+    // 2. Traduce la lista de Entidades a DTOs
+    List<TurnoDTO> turnosDTO = new ArrayList<>();
+    
+    for (Turno t : turnosJPA) {
+        String titulo = "Reservado"; // Título simple
+        
+        // (Opcional: Si Turno está ligado a Solicitud, podríamos poner el nombre del cliente)
+        // if (t.getSolicitudServicio() != null && t.getSolicitudServicio().getCliente() != null) {
+        //     titulo = t.getSolicitudServicio().getCliente().getNombre();
+        // }
+        
+        turnosDTO.add(new TurnoDTO(
+            t.getIdTurno(),
+            t.getFechaHoraInicio(),
+            t.getFechaHoraFin(),
+            titulo 
+        ));
+    }
+    
+    return turnosDTO;
+}
+
+
+}
+	
+
 
 

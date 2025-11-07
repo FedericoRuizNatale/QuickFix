@@ -20,6 +20,8 @@ public class SolicitudServicio {
 	@Enumerated(EnumType.STRING)
 	private Prioridad prioridad;
 	
+	private String diagnosticoTecnico;
+	
 	@ManyToOne
 	private Cliente cliente;
 	
@@ -71,7 +73,7 @@ public class SolicitudServicio {
 
 	public SolicitudServicio(LocalDateTime fechaHoraCreacion, String diagnostico, EstadoSolicitud estado,
 			Prioridad prioridad, Cliente cliente, Tecnico tecnico, Servicio servicio, Turno turno,
-			ConsultaTecnica consultaDeOrigen) {
+			ConsultaTecnica consultaDeOrigen, String diagnosticoTecnico) {
 		super();
 		this.fechaHoraCreacion = fechaHoraCreacion;
 		this.diagnostico = diagnostico;
@@ -82,6 +84,18 @@ public class SolicitudServicio {
 		this.servicio = servicio;
 		this.turno = turno;
 		this.consultaDeOrigen = consultaDeOrigen;
+		this.diagnosticoTecnico = diagnosticoTecnico;
+	}
+
+	
+	
+	
+	public String getDiagnosticoTecnico() {
+		return diagnosticoTecnico;
+	}
+
+	public void setDiagnosticoTecnico(String diagnosticoTecnico) {
+		this.diagnosticoTecnico = diagnosticoTecnico;
 	}
 
 	public Integer getIdSolicitud() {
@@ -141,21 +155,26 @@ public class SolicitudServicio {
 	}
 
 	public Servicio getServicio() {
-		return servicio;
-	}
+        return servicio;
+    }
 
 	public void setServicio(Servicio servicio) {
-		this.servicio = servicio;
-	}
+        this.servicio = servicio;
+        if (servicio != null && servicio.getSolicitudServicio() != this) {
+            servicio.setSolicitudServicio(this); // Sincroniza el lado dueño
+        }
+    }
 
 	public Turno getTurno() {
 		return turno;
 	}
 
 	public void setTurno(Turno turno) {
-		this.turno = turno;
-	}
-
+        this.turno = turno;
+        if (turno != null && turno.getSolicitudServicio() != this) {
+            turno.setSolicitudServicio(this); // Sincroniza el lado dueño
+        }
+    }
 	public ConsultaTecnica getConsultaDeOrigen() {
 		return consultaDeOrigen;
 	}

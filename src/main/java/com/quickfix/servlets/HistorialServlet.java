@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "HistorialServlet", urlPatterns = {"/cliente/HistorialServlet"})
 public class HistorialServlet extends HttpServlet {
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

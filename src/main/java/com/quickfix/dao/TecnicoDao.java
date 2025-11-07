@@ -59,4 +59,18 @@ public class TecnicoDao extends GenericDao<Tecnico, Integer> {
             }
         }
     }
+    
+    public List<Tecnico> findTecnicosActivos() {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<Tecnico> query = em.createQuery(
+                "SELECT t FROM Tecnico t WHERE t.estado = true", 
+                Tecnico.class
+            );
+            return query.getResultList();
+        } finally {
+            if (em != null) em.close();
+        }
+    }
+    
 }

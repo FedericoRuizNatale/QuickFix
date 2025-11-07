@@ -18,7 +18,7 @@
     // ====================================================================
     // LÓGICA DE CARGA DE DATOS PARA LA TABLA
     // ====================================================================
-    ControladorLogica controlLogica = new ControladorLogica();
+    ControladorLogica controlLogica = ControladorLogica.getInstance();
     Cliente clienteLogueado = (Cliente) session.getAttribute("usuarioLogueado");
     
     List<EquipoCliente> listaEquipos = null;

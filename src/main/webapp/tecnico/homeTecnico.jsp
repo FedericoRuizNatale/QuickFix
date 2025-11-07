@@ -85,7 +85,7 @@
                          <i class="fas fa-calendar-alt fa-3x text-warning mb-3"></i>
                         <h5 class="card-title">Gestionar Disponibilidad</h5>
                         <p class="card-text small text-muted">Publicar u ocultar tus horarios disponibles para nuevas solicitudes.</p>
-                        <a href="GestionTurnosServlet" class="btn btn-warning">Gestionar Turnos</a>
+                        <a href="AgendaTecnicoServlet" class="btn btn-warning">Gestionar Turnos</a>
                     </div>
                 </div>
             </div>

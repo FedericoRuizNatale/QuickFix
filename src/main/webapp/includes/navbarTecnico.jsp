@@ -33,7 +33,7 @@
                 <li class="nav-item">
                      <%-- ✅ CORRECCIÓN: Usar fn:contains --%>
                     <a class="nav-link <c:if test='${fn:contains(pageContext.request.requestURI, "GestionTurnosServlet")}'>active</c:if>" 
-                       href="${pageContext.request.contextPath}/tecnico/GestionTurnosServlet">Gestionar Disponibilidad</a>
+                       href="${pageContext.request.contextPath}/tecnico/AgendaTecnicoServlet">Gestionar Disponibilidad</a>
                 </li>
             </ul>
         </div>

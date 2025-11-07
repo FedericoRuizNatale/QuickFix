@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "PreSolicitudServlet", urlPatterns = {"/cliente/PreSolicitudServlet"})
 public class PreSolicitudServlet extends HttpServlet {
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

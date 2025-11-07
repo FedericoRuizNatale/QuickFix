@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpSession;
 // ✅ CORRECCIÓN: El nombre de la clase debe ser EquipoServlet (sin Cliente)
 public class EquipoClienteServlet extends HttpServlet { 
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     // doGet: Se usa para MOSTRAR el formulario de edición
     @Override

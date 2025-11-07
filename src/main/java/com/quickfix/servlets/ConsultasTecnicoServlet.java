@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "ConsultasTecnicoServlet", urlPatterns = {"/tecnico/ConsultasTecnicoServlet"})
 public class ConsultasTecnicoServlet extends HttpServlet {
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     /**
      * doGet: Carga la lista de consultas PENDIENTES y sin asignar.

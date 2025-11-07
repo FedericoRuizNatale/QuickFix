@@ -21,7 +21,7 @@
     // LÓGICA DE VALIDACIÓN DE EQUIPO
     // ====================================================================
 
-    ControladorLogica controlLogica = new ControladorLogica();
+    ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     boolean tieneEquipos = false;
     if (clienteLogueado != null) {

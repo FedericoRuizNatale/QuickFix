@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "PreConsultaServlet", urlPatterns = {"/cliente/PreConsultaServlet"})
 public class PreConsultaServlet extends HttpServlet {
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -16,7 +16,7 @@ import com.quickfix.entities.Usuario;
 public class LoginServlet extends HttpServlet {
 	
 	// Instancia de la Controladora Lógica
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

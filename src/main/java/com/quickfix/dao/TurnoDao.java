@@ -1,5 +1,6 @@
 package com.quickfix.dao; // El paquete correcto para los DAOs
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.quickfix.entities.Turno;
@@ -60,6 +61,29 @@ public class TurnoDao extends GenericDao<Turno, Integer> {
             throw new RuntimeException("Error al actualizar el estado del turno.", e);
         } finally {
             if (em != null) em.close();
+        }
+    }
+    
+    public List<Turno> findTurnosReservadosFuturos() {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<Turno> query = em.createQuery(
+                // Buscamos turnos que NO estén disponibles y sean de hoy en adelante
+                "SELECT t FROM Turno t " +
+                "WHERE t.estado != :estadoDisponible " +
+                "AND t.fechaHoraInicio >= :ahora " +
+                "ORDER BY t.fechaHoraInicio",
+                Turno.class
+            );
+            
+            query.setParameter("estadoDisponible", EstadoTurno.DISPONIBLE); // ⬅️ O el estado que uses para "libre"
+            query.setParameter("ahora", LocalDateTime.now().withHour(0).withMinute(0)); // Desde la medianoche de hoy
+            
+            return query.getResultList();
+        } finally {
+            if (em != null) {
+                em.close();
+            }
         }
     }
     

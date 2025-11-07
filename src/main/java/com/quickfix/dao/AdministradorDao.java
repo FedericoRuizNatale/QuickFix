@@ -2,7 +2,10 @@ package com.quickfix.dao; // El paquete correcto para los DAOs
 
 import com.quickfix.entities.Administrador;
 import com.quickfix.persistencia.GenericDao;
+
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.TypedQuery;
 
 /**
  * DAO Específico para la entidad Administrador.
@@ -21,6 +24,17 @@ public class AdministradorDao extends GenericDao<Administrador, Integer> {
         // y le pasa el EMF para crear EntityManagers.
         super(Administrador.class, emf);
     }
+
+	public long countAll() {
+    EntityManager em = getEntityManager();
+    try {
+        // La base de datos cuenta directamente
+        TypedQuery<Long> query = em.createQuery("SELECT COUNT(a) FROM Administrador a", Long.class);
+        return query.getSingleResult(); // Devuelve solo un número (long)
+    } finally {
+        if (em != null) em.close();
+    }
+}
     
     // ¡Los métodos create, find, update, delete, findAll ya están heredados!
     

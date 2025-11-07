@@ -23,7 +23,7 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "SolicitudServlet", urlPatterns = {"/cliente/SolicitudServlet"})
 public class SolicitudServlet extends HttpServlet {
 
-    ControladorLogica controlLogica = new ControladorLogica();
+	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

@@ -12,7 +12,7 @@
     if (session.getAttribute("usuarioLogueado") == null || 
         !"Cliente".equals(session.getAttribute("rolUsuario"))) {
         response.sendRedirect("../login.jsp");
-        return; // Detiene la ejecución si no es cliente
+        return; 
     }
     
     // ====================================================================

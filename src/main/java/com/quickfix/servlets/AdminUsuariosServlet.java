@@ -15,30 +15,25 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet para que el Administrador gestione el ABMC (CRUD) de todos los usuarios.
- */
-// URL dentro de la carpeta protegida del admin
+
 @WebServlet(name = "AdminUsuariosServlet", urlPatterns = {"/admin/AdminUsuariosServlet"})
 public class AdminUsuariosServlet extends HttpServlet {
 
 	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
-    /**
-     * doGet: Carga la lista de usuarios según el rol solicitado y muestra el JSP correspondiente.
-     */
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Seguridad: Verificar Sesión y Rol de Administrador
+        // Seguridad: Verificar Sesión y Rol de Administrador
         HttpSession miSesion = request.getSession(false);
         if (miSesion == null || !"Administrador".equals(miSesion.getAttribute("rolUsuario"))) {
             response.sendRedirect("../login.jsp");
             return;
         }
 
-        // 2. Determinar qué rol se quiere listar (por defecto, Clientes)
+        
         String rolAMostrar = request.getParameter("rol");
         if (rolAMostrar == null || rolAMostrar.isEmpty()) {
             rolAMostrar = "cliente"; // Vista por defecto
@@ -47,7 +42,7 @@ public class AdminUsuariosServlet extends HttpServlet {
         String jspTarget = ""; // El JSP al que haremos forward
         
         try {
-            // 3. Cargar la lista correspondiente según el rol
+            // Cargar la lista correspondiente según el rol
             switch (rolAMostrar.toLowerCase()) {
                 case "cliente":
                     List<Cliente> listaClientes = controlLogica.traerTodosLosClientes();
@@ -83,9 +78,7 @@ public class AdminUsuariosServlet extends HttpServlet {
         }
     }
 
-    /**
-     * doPost: Procesa las acciones de Crear, Editar o Eliminar un usuario.
-     */
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -108,7 +101,7 @@ public class AdminUsuariosServlet extends HttpServlet {
             switch (action) {
                 case "create":
                     // --- LÓGICA PARA CREAR ---
-                    // Extraer datos comunes de Usuario
+                    
                     String nombre = request.getParameter("nombre");
                     String apellido = request.getParameter("apellido");
                     String email = request.getParameter("email");
@@ -143,32 +136,32 @@ public class AdminUsuariosServlet extends HttpServlet {
                 case "update":
                     // --- LÓGICA PARA EDITAR ---
                     Integer idUsuario = Integer.parseInt(request.getParameter("idUsuario"));
-                    // Extraer datos comunes actualizados
+                    
                     String nombreUpd = request.getParameter("nombre");
                     String apellidoUpd = request.getParameter("apellido");
                     String emailUpd = request.getParameter("email");
-                    // OJO: Manejo de contraseña (no se suele pasar en editar, o se maneja aparte)
+                    
                     String telefonoUpd = request.getParameter("telefono");
                     String direccionUpd = request.getParameter("direccion");
                     boolean estadoUpd = "on".equals(request.getParameter("estado")); // Checkbox
 
-                    // Lógica específica para cada rol
+                    
                      if ("cliente".equalsIgnoreCase(rol)) {
                         Cliente cli = controlLogica.traerClienteCompleto(idUsuario);
                         if(cli != null) {
                             cli.setNombre(nombreUpd); cli.setApellido(apellidoUpd); cli.setEmail(emailUpd);
                             cli.setTelefono(telefonoUpd); cli.setDireccion(direccionUpd); cli.setEstado(estadoUpd);
-                            cli.setDni(request.getParameter("dni")); // DNI específico
-                            controlLogica.editarCliente(cli); // Necesitas este método
+                            cli.setDni(request.getParameter("dni")); 
+                            controlLogica.editarCliente(cli); 
                         }
                     } else if ("tecnico".equalsIgnoreCase(rol)) {
                          Tecnico tec = controlLogica.traerTecnicoCompleto(idUsuario);
                          if(tec != null) {
                             tec.setNombre(nombreUpd); tec.setApellido(apellidoUpd); tec.setEmail(emailUpd);
                             tec.setTelefono(telefonoUpd); tec.setDireccion(direccionUpd); tec.setEstado(estadoUpd);
-                            tec.setEspecialidad(request.getParameter("especialidad")); // Específico
-                            tec.setDisponibilidad(request.getParameter("disponibilidad")); // Específico
-                            controlLogica.editarTecnico(tec); // Necesitas este método
+                            tec.setEspecialidad(request.getParameter("especialidad")); 
+                            tec.setDisponibilidad(request.getParameter("disponibilidad")); 
+                            controlLogica.editarTecnico(tec); 
                          }
                     } else if ("administrador".equalsIgnoreCase(rol)) {
                          Administrador adm = controlLogica.traerAdminCompleto(idUsuario); // Necesitas este método
@@ -176,7 +169,7 @@ public class AdminUsuariosServlet extends HttpServlet {
                             adm.setNombre(nombreUpd); adm.setApellido(apellidoUpd); adm.setEmail(emailUpd);
                             adm.setTelefono(telefonoUpd); adm.setDireccion(direccionUpd); adm.setEstado(estadoUpd);
                             adm.setNivelAcceso(Integer.parseInt(request.getParameter("nivelAcceso"))); // Específico
-                            controlLogica.editarAdmin(adm); // Necesitas este método
+                            controlLogica.editarAdmin(adm); 
                          }
                     }
                     redirectURL += "&exito=editado";
@@ -186,19 +179,18 @@ public class AdminUsuariosServlet extends HttpServlet {
                     // --- LÓGICA PARA ELIMINAR ---
                     Integer idUsuarioDel = Integer.parseInt(request.getParameter("idUsuario"));
                     
-                    // Necesitas métodos de eliminación específicos por rol en la lógica
-                    // Estos métodos deberían llamar a los delete() de los DAOs correspondientes
+                    
                      if ("cliente".equalsIgnoreCase(rol)) {
-                        controlLogica.eliminarCliente(idUsuarioDel); // Necesitas este método
+                        controlLogica.eliminarCliente(idUsuarioDel);
                     } else if ("tecnico".equalsIgnoreCase(rol)) {
-                        controlLogica.eliminarTecnico(idUsuarioDel); // Necesitas este método
+                        controlLogica.eliminarTecnico(idUsuarioDel); 
                     } else if ("administrador".equalsIgnoreCase(rol)) {
-                         // Añadir validación: No permitir auto-eliminación si es el único admin
+                         
                          Usuario adminLogueado = (Usuario) miSesion.getAttribute("usuarioLogueado");
                          if(adminLogueado.getIdUsuario().equals(idUsuarioDel) && controlLogica.contarAdmins() <= 1) {
                               redirectURL += "&error=" + URLEncoder.encode("No puedes eliminar al último administrador.", "UTF-8");
                          } else {
-                              controlLogica.eliminarAdmin(idUsuarioDel); // Necesitas este método
+                              controlLogica.eliminarAdmin(idUsuarioDel);
                               redirectURL += "&exito=eliminado";
                          }
                     }

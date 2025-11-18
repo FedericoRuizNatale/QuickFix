@@ -10,6 +10,5 @@ public class AgendaConfiguracionDao extends GenericDao<AgendaConfiguracion, Inte
         super(AgendaConfiguracion.class, emf);
     }
     
-    // Por ahora no necesitamos métodos extra. 
-    // Usaremos los que hereda de GenericDao (find, update).
+    
 }

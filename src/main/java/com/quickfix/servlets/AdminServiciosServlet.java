@@ -14,22 +14,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet para que el Administrador gestione el ABMC (CRUD) de Servicios.
- */
+
 @WebServlet(name = "AdminServiciosServlet", urlPatterns = {"/admin/AdminServiciosServlet"})
 public class AdminServiciosServlet extends HttpServlet {
 
 	private final ControladorLogica controlLogica = ControladorLogica.getInstance();
 
-    /**
-     * doGet: Carga la lista de todos los servicios y la muestra en el JSP.
-     */
+    
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Seguridad: Verificar Sesión y Rol de Administrador
+        
         HttpSession miSesion = request.getSession(false);
         if (miSesion == null || !"Administrador".equals(miSesion.getAttribute("rolUsuario"))) {
             response.sendRedirect("../login.jsp");
@@ -37,13 +33,13 @@ public class AdminServiciosServlet extends HttpServlet {
         }
 
         try {
-            // 2. Cargar la lista de todos los servicios
+            
             List<Servicio> listaServicios = controlLogica.traerTodosLosServicios();
 
-            // 3. Guardar la lista en el request para el JSP
+            
             request.setAttribute("listaServicios", listaServicios);
 
-            // 4. Forward al JSP de gestión de servicios
+           
             request.getRequestDispatcher("servicios_abmc.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -53,23 +49,21 @@ public class AdminServiciosServlet extends HttpServlet {
         }
     }
 
-    /**
-     * doPost: Procesa las acciones de Crear, Editar o Eliminar un Servicio.
-     */
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // 1. Seguridad: Verificar Sesión y Rol de Administrador
+        
         HttpSession miSesion = request.getSession(false);
         if (miSesion == null || !"Administrador".equals(miSesion.getAttribute("rolUsuario"))) {
             response.sendRedirect("../login.jsp");
             return;
         }
 
-        // 2. Obtener la acción (create, update, delete)
+        
         String action = request.getParameter("action");
-        String redirectURL = "AdminServiciosServlet"; // Redirección base
+        String redirectURL = "AdminServiciosServlet"; 
 
         try {
             switch (action) {
@@ -120,7 +114,7 @@ public class AdminServiciosServlet extends HttpServlet {
                         controlLogica.eliminarServicio(idServicioDel);
                         redirectURL += "?exito=eliminado";
                     } catch (Exception e) {
-                        // Captura el error si el servicio está en uso (Foreign Key)
+                        
                         redirectURL += "?error=" + URLEncoder.encode(e.getMessage(), "UTF-8");
                     }
                     break;

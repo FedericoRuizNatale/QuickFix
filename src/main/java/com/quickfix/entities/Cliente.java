@@ -23,30 +23,24 @@ public class Cliente extends Usuario{
 	@OneToMany(mappedBy = "cliente")
 	private List<SolicitudServicio> solicitudesServicios;
 	
-	/**
-	 * Constructor completo (Recomendado).
-	 * Nota que quité la lista de equipos de los argumentos.
-	 * Se asume que un cliente se crea sin equipos y se le añaden después.
-	 */
+	
 	public Cliente(String nombre, String apellido, String email, String contraseña, String telefono, String direccion,
 			boolean estado, LocalDateTime fechaRegistro, Integer puntosLealtad, String dni) {
 		
-		// Llama al constructor padre
+		
 		super(nombre, apellido, email, contraseña, telefono, direccion, estado, fechaRegistro);
 		
-		// Asigna los campos propios de Cliente
+		
 		this.puntosLealtad = puntosLealtad;
 		this.dni = dni;
 		
-		// ✅ INICIALIZA LA LISTA
+		
 		this.equipos = new ArrayList<>(); 
 		this.consultasTecnicas = new ArrayList<>(); 
 		this.solicitudesServicios = new ArrayList<>(); 
 	}
 	
-	/**
-	 * Constructor vacío (Obligatorio para JPA).
-	 */
+	
 	public Cliente() {
 		super();
 		// ✅ INICIALIZA LA LISTA
@@ -85,12 +79,7 @@ public class Cliente extends Usuario{
 		this.dni = dni;
 	}
 	
-	// --- Métodos de utilidad (Opcional pero muy recomendado) ---
 	
-	/**
-	 * Método para añadir un solo equipo a la lista
-	 * y mantener la consistencia de la relación.
-	 */
 	public void addEquipo(EquipoCliente equipo) {
 		this.equipos.add(equipo);
 		equipo.setCliente(this); // Esto mantiene ambos lados de la relación sincronizados

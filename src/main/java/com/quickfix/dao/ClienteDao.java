@@ -8,26 +8,16 @@ import jakarta.persistence.NoResultException; // Para el catch
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 
-/**
- * DAO Específico para la entidad Cliente.
- * Hereda todos los métodos CRUD (create, find, update, delete, findAll)
- * de GenericDao.
- */
+
 public class ClienteDao extends GenericDao<Cliente, Integer> {
 
-    /**
-     * Constructor que recibe el EntityManagerFactory desde la
-     * ControladoraPersistencia y se lo pasa al padre (GenericDao).
-     * @param emf El EntityManagerFactory único de la aplicación.
-     */
+    
     public ClienteDao(EntityManagerFactory emf) {
         // Le dice al padre que esta clase maneja "Cliente.class"
         // y le pasa el EMF para que pueda crear EntityManagers.
         super(Cliente.class, emf);
     }
     
-    // --- ¡YA NO NECESITAS ESCRIBIR create, find, update, delete, findAll! ---
-    // Todos esos métodos fueron heredados automáticamente de GenericDao.
     
     
     // --- MÉTODOS ESPECIALES SOLO PARA CLIENTE ---

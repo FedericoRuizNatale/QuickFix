@@ -27,14 +27,14 @@ public class EquipoClienteServlet extends HttpServlet {
         String action = request.getParameter("action");
         HttpSession miSesion = request.getSession(false);
 
-        // Seguridad básica
+        
         if (miSesion == null || !"Cliente".equals(miSesion.getAttribute("rolUsuario"))) {
             response.sendRedirect("../login.jsp");
             return;
         }
 
         if ("edit".equals(action)) {
-            // ... (Lógica para mostrar el formulario de edición, está bien) ...
+            
             try {
                 Integer idEquipo = Integer.parseInt(request.getParameter("id"));
                 EquipoCliente equipo = controlLogica.traerEquipo(idEquipo);
@@ -56,7 +56,7 @@ public class EquipoClienteServlet extends HttpServlet {
     }
 
 
-    // doPost: Maneja CREAR, ACTUALIZAR (UPDATE) y ELIMINAR (DELETE)
+    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -64,7 +64,7 @@ public class EquipoClienteServlet extends HttpServlet {
         String action = request.getParameter("action"); 
         HttpSession miSesion = request.getSession(false);
 
-        // Seguridad básica
+        
         if (miSesion == null || !"Cliente".equals(miSesion.getAttribute("rolUsuario"))) {
             response.sendRedirect("../login.jsp");
             return;
@@ -74,10 +74,10 @@ public class EquipoClienteServlet extends HttpServlet {
 
         try {
             if ("delete".equals(action)) {
-                // --- ACCIÓN: ELIMINAR ---
+                
                 Integer idEquipo = Integer.parseInt(request.getParameter("idEquipo"));
                 
-                // ✅ VALIDACIÓN ANTES DE BORRAR
+                
                 try {
                     controlLogica.eliminarEquipo(idEquipo); // La lógica ahora puede lanzar Exception
                     response.sendRedirect("miEquipo.jsp?exito=eliminado"); 
@@ -126,7 +126,7 @@ public class EquipoClienteServlet extends HttpServlet {
             
         } catch (NumberFormatException e) {
              response.sendRedirect("miEquipo.jsp?error=id_invalido");
-        } catch (Exception e) { // Captura otros errores inesperados
+        } catch (Exception e) { 
             System.err.println("Error en doPost de EquipoServlet: " + e.getMessage());
             e.printStackTrace();
             response.sendRedirect("miEquipo.jsp?error=interno");

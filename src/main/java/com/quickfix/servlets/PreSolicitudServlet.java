@@ -45,13 +45,13 @@ public class PreSolicitudServlet extends HttpServlet {
         }
 
         try {
-            // A. Traer Equipos del cliente
+            
             List<EquipoCliente> listaEquipos = controlLogica.traerEquiposPorCliente(clienteLogueado);
             
-            // B. Traer Catálogo de Servicios
+            
             List<Servicio> listaServicios = controlLogica.traerTodosLosServicios();
             
-            // C. (¡BORRADO!) Ya no traemos los turnos. El calendario lo hará por AJAX.
+            
 
             // 3. ATRIBUTOS DE REQUEST
             request.setAttribute("listaEquipos", listaEquipos);

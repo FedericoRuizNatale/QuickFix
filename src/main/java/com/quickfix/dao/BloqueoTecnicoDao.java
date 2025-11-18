@@ -16,10 +16,7 @@ public class BloqueoTecnicoDao extends GenericDao<BloqueoTecnico, Integer> {
         super(BloqueoTecnico.class, emf);
     }
     
-    // ⬇️ --- MÉTODO NUEVO --- ⬇️
-    /**
-     * Busca todos los bloqueos registrados para un técnico específico.
-     */
+    
     public List<BloqueoTecnico> findBloqueosByTecnico(Tecnico tecnico) {
         EntityManager em = getEntityManager();
         try {
